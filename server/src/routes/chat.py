@@ -2,6 +2,7 @@ import os
 
 from fastapi import APIRouter, Depends, FastAPI, WebSocket, Request, BackgroundTasks, HTTPException, WebSocketDisconnect
 import uuid
+from redis.commands.json.path import Path
 
 from src.socket.connection import ConnectionManager
 from src.socket.utils import get_token
@@ -24,6 +25,15 @@ async def toekn_generator(name : str, request:Request):
     token = str(uuid.uuid4())
     data = {"name": name, "token": token}
 
+    json_client = redis.create_rejson_connection()
+
+    chat_session = Chat(
+        token = token,
+        messages = [],
+        name = name
+    )
+
+    json_client.jsonset(str(token), Path.rootPath(), chat_session.dict())
     return data
 
 @chat.post("refresh_token")
@@ -31,7 +41,8 @@ async def refresh_token(request:Request):
     return None
 
 @chat.websocket("/chat")
-async def websocket_endpoint(websocket: WebSocket = WebSocket, token: str = Depends(get_token)):
+#async def websocket_endpoint(websocket: WebSocket = WebSocket, token: str = Depends(get_token)):
+async def websocket_endpoint(websocket: WebSocket, token: str = Depends(get_token)):
     await manager.connect(websocket)
     redis_client = await redis.create_connection()
     producer = Producer(redis_client)
