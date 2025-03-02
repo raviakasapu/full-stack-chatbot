@@ -1,0 +1,4 @@
+/server/src_env
+/worker/venv
+
+.env

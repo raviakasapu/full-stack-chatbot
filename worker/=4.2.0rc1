@@ -1,0 +1,5 @@
+Collecting redis
+  Using cached redis-5.2.1-py3-none-any.whl (261 kB)
+Requirement already satisfied: async-timeout>=4.0.3 in ./wrk_env/lib/python3.11/site-packages (from redis) (5.0.1)
+Installing collected packages: redis
+Successfully installed redis-5.2.1
