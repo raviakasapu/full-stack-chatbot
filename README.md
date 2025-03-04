@@ -3,4 +3,5 @@ This is inspired by a blog https://blog.stephensanwo.dev/build-a-fullstack-ai-ch
 Please use instructions to run
 
 cd src
+pip install - requirements.txt
 python main.py
