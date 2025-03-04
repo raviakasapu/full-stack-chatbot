@@ -1,0 +1,7 @@
+REDIS_HOST = <redis-cloud-host>
+REDIS_PORT = <17334>
+REDIS_DB = <0>
+REDIS_USE_PROD = <true>
+REDIS_USERNAME = <default>
+REDIS_PASSWORD = <redis-cloud-password>
+OPENAI_API_KEY = <openai-api-key>
