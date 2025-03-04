@@ -1,18 +1,30 @@
 import os
-
+from datetime import datetime
 from fastapi import APIRouter, Depends, FastAPI, WebSocket, Request, BackgroundTasks, HTTPException, WebSocketDisconnect
-import uuid
-from redis.commands.json.path import Path
+import uuid 
+from uuid import UUID
+
+#from redis.commands.json.path import Path
 
 from src.socket.connection import ConnectionManager
 from src.socket.utils import get_token
 
 from src.redis.producer import Producer
 from src.redis.config import Redis
+#from src.schema.chat_schema import Chat
+
+from pydantic import BaseModel
+from typing import List
 
 chat = APIRouter()
 manager = ConnectionManager()
 redis = Redis()
+
+class Chat(BaseModel):
+    id: str
+    messages: List
+    name: str
+    session_start: str
 
 @chat.post("/token")
 async def toekn_generator(name : str, request:Request):
@@ -23,18 +35,22 @@ async def toekn_generator(name : str, request:Request):
         })
     
     token = str(uuid.uuid4())
-    data = {"name": name, "token": token}
-
-    json_client = redis.create_rejson_connection()
-
     chat_session = Chat(
-        token = token,
+        id = token,
         messages = [],
-        name = name
+        name = name,
+        session_start = str(datetime.now())
     )
 
-    json_client.jsonset(str(token), Path.rootPath(), chat_session.dict())
-    return data
+    json_client = redis.create_rejson_connection()
+    # Convert the model to dict and ensure UUID is converted to string
+    chat_dict = chat_session.dict()
+    chat_dict['id'] = str(chat_dict['id'])  # Convert UUID to string
+    
+    json_client.json().set(str(token), '$', chat_dict)
+    redis_client = await redis.create_connection()
+    await redis_client.set(str(token), 3600)
+    return chat_dict
 
 @chat.post("refresh_token")
 async def refresh_token(request:Request):

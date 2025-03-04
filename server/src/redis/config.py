@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 #import aioredis 
 from redis import asyncio as aioredis
-from rejson import Client
+from redis.commands.json.path import Path
+import redis
 
 load_dotenv()
 
@@ -22,7 +23,7 @@ class Redis():
         return self.connection
     
     def create_rejson_connection(self):
-        self.redisJson = Client(
+        self.redisJson = redis.Redis(
             host=self.REDIS_URL, 
             port=self.REDIS_PORT, 
             username=self.REDIS_USER, 
